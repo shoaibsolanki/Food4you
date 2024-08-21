@@ -1,0 +1,58 @@
+{
+  "name": "mybank",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@mui/icons-material": "^5.15.20",
+    "@mui/lab": "^5.0.0-alpha.171",
+    "@mui/material": "^5.15.20",
+    "@mui/styled-engine-sc": "^6.0.0-alpha.18",
+    "@phosphor-icons/react": "^2.1.6",
+    "antd": "^5.19.1",
+    "axios": "^1.7.2",
+    "bootstrap": "^5.3.3",
+    "js-cookie": "^3.0.5",
+    "phosphor-icons": "^1.4.2",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-hook-form": "^7.52.0",
+    "react-router-dom": "^6.25.0",
+    "react-scripts": "^5.0.1",
+    "reactstrap": "^9.2.2",
+    "styled-components": "^6.1.11",
+    "sweetalert2": "^11.12.3",
+    "swiper": "^11.1.5"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.19",
+    "daisyui": "^4.12.10",
+    "postcss": "^8.4.39",
+    "tailwindcss": "^3.4.5"
+  }
+}
