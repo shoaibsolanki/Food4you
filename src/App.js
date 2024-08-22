@@ -26,6 +26,8 @@ import Policy from "./about/Policy";
 import DeliveryAndShippingPolicy from "./about/DeliveryAndShippingPolicy";
 import TermandCondition from "./about/TermandCondition";
 import CustomerCare from "./gethelp/CustomerCare";
+import Landingpage from "./landingpage/Landingpage";
+import Store from "./Stores/Store";
 
 function App() {
   return (
@@ -37,6 +39,8 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/landing" element={<Landingpage />} />
+            <Route path="/stores" element={<Store />} />
 
             <Route path="/cart/checkout/summary" element={<OrderComplete />} />
 
