@@ -25,8 +25,8 @@ const Navbar = ({ search, setSearch, data }) => {
 
   const handleProceedToProfile = () => {
     if (userId) { 
-      window.location.href = '/profile'
-      // navigate("/profile");
+      // window.location.href = '/profile'
+      navigate("/profile");
     } else {
       navigate("/login");
     }

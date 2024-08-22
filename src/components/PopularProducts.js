@@ -5,9 +5,11 @@ import { BASEURL } from "../services/http-Pos";
 import axios from "axios";
 import DataService from "../services/requestApi";
 import { useAuth } from "../contexts/AuthConext";
-
+import InfiniteScroll from "react-infinite-scroll-component";
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
 const PopularProducts = ({ data, setData }) => {
-  const { products } = useAuth();
+  const { products ,fetchAndSetProducts,hasMore} = useAuth();
   console.log("All Product",products)
   // const [currentPage, setCurrentPage] = useState("1");
 
@@ -61,7 +63,9 @@ const PopularProducts = ({ data, setData }) => {
   // };
 
   // useEffect(() => {
-  //   GetAllCategory();
+  //   if(products?.length==0 ){
+  //     fetchAndSetProducts();
+  //   }
   // }, []);
 
   return (
@@ -89,6 +93,13 @@ const PopularProducts = ({ data, setData }) => {
           </li>
         </ul> */}
       </div>
+      <InfiniteScroll
+      dataLength={products.length} // This is the length of the data so far
+      next={fetchAndSetProducts} // Function to fetch more data
+      hasMore={hasMore} // Flag to show if more data is available
+      loader={<h4 className="text-center bg-[#003f62] text-white">Loading...</h4>} // Loader component
+      endMessage={<p className="text-center bg-[#003f62] text-white">No more products available</p>} // Message when no more data is available
+    >
       <div className="w-full mx-auto my-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {products
           .map((item, index) => (
@@ -98,6 +109,7 @@ const PopularProducts = ({ data, setData }) => {
             
           ))}
       </div>
+           </InfiniteScroll>
     </div>
   );
 };

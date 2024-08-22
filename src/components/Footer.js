@@ -5,6 +5,11 @@ import { Link } from "react-router-dom";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import { WhatsApp } from "@mui/icons-material";
 const Footer = () => {
+
+  const selectedStore = localStorage.getItem('selectedStore');
+  const parsedStore = selectedStore ? JSON.parse(selectedStore) : null;
+  const { address} = parsedStore || {};
+
   return (
     <>
       {/* <footer className="bg-light text-primary p-10 "> */}
@@ -110,7 +115,7 @@ const Footer = () => {
       <div className="text-start mb-4">
         <h1 className="text-2xl font-bold">Food4You.</h1>
         <p className="text-muted-foreground">
-          Photon IT Ops office: Plot no. 242/G3, Nitikhand-1, Indirapuram, Ghaziabad NCR, India
+          {address}
         </p>
       </div>
       <div className="text-star mb-4">

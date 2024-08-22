@@ -1,14 +1,23 @@
 import React, { useEffect, useState } from "react";
 import DataService from '../services/requestApi'
 import { useAuth } from "../contexts/AuthConext";
+import { useNavigate } from "react-router-dom";
 
 
 const HorizontalCategoryList = () => {
   const {DataByCatogory,selectedCat} =useAuth()
  const [categories, setcategories] = useState([])
+ const selectedStore = localStorage.getItem('selectedStore');
+  const parsedStore = selectedStore ? JSON.parse(selectedStore) : null;
+  const { saas_id, store_id } = parsedStore || {};
+  const naviagte = useNavigate();
   const GetCatogroy=async ()=>{
     try {
-      const response = await DataService.GetCategoryList("8")
+      if(!store_id &&!saas_id){
+        naviagte("/landing");
+        return
+      }
+      const response = await DataService.GetCategoryList(saas_id)
       console.log(response)
       setcategories(response.data.data)
     } catch (error) {

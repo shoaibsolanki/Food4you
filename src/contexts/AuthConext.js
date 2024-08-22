@@ -1,15 +1,20 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import DataService from "../services/requestApi";
+import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [allOrders, setAllOrders] = useState();
   const [selectedCat, setSelectedCat] = useState();
   const [isPaymentSuccessful, setIsPaymentSuccessful] = useState(false);
-
+  const [stores, setStores] = useState([]);
+  const [page, setPage] = useState(1); // Track the current page
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [authData, setAuthData] = useState(() => {
     const storedAuthData = JSON.parse(localStorage.getItem("authData"));
     if (storedAuthData) {
@@ -18,37 +23,59 @@ export const AuthProvider = ({ children }) => {
       return { token: null, user: null };
     }
   });
-  const { id, saasId, storeId } = authData;
+  const { id } = authData;
   const isAuthenticated = Cookies.get("authToken");
   console.log("isAuthenticated", isAuthenticated);
-  const fetchProductApi = async () => {
+  const selectedStore = localStorage.getItem('selectedStore');
+  const parsedStore = selectedStore ? JSON.parse(selectedStore) : null;
+  const { saas_id, store_id } = parsedStore || {};
+  const fetchProductApi = async (page) => {
     try {
-      const response = await DataService.FetchProductApi("80001", "8", "1");
-      console.log(response.data.data)
+      console.log("stores get", saas_id, store_id);
+      if (!store_id && !saas_id) {
+        navigate("/landing");
+        return;
+      }
+
+      const response = await DataService.FetchProductApi(store_id, saas_id, page.toString());
+      console.log(response.data.data);
+      if(response.data.next==null){
+        setHasMore(false);
+      }
       return response.data;
     } catch (error) {
-      console.error("product fetch", error);
+      console.error("Product fetch error", error);
       throw new Error(error);
     }
   };
 
   const fetchAndSetProducts = async () => {
     try {
-      const productsData = await fetchProductApi();
-      const updatedProducts = productsData.data.map((item) => ({
-        ...item,
-        new_price: item.price,
-        image_name: item.image_name1,
-      }));
-      setProducts(updatedProducts);
+      const productsData = await fetchProductApi(page);
+      if (productsData && productsData.data) {
+        const newProducts = productsData.data.map((item) => ({
+          ...item,
+          new_price: item.price,
+          image_name: item.image_name1,
+        }));
+
+        setProducts((prevProducts) => [...prevProducts, ...newProducts]);
+
+        // Check if more products are available
+        if (newProducts.length === 0) {
+          setHasMore(false);
+        } else {
+          // Increment page number for the next fetch
+          setPage((prevPage) => prevPage + 1);
+        }
+      }
     } catch (error) {
       console.error("Failed to fetch products", error);
     }
   };
-
-  const getOrderHistory = async (storeId, saasId, id) => {
+  const getOrderHistory = async (store_id, saas_id, id) => {
     try {
-      const response = await DataService.OrderHistory(storeId, saasId, id);
+      const response = await DataService.OrderHistory(store_id, saas_id, id);
       const reversedOrders = response.data.data.slice().reverse();
       setAllOrders(reversedOrders);
     } catch (error) {
@@ -57,14 +84,14 @@ export const AuthProvider = ({ children }) => {
   };
   console.log(allOrders);
   useEffect(() => {
-    if(storeId,saasId,id){
-      getOrderHistory(storeId, saasId, id);
+    if(store_id,saas_id,id){
+      getOrderHistory(store_id, saas_id, id);
     }
   }, [id]);
 
-  useEffect(() => {
-    fetchAndSetProducts();
-  }, []);
+  // useEffect(() => {
+  //   fetchAndSetProducts();
+  // }, []);
 
   useEffect(() => {
     const storedAuthData = JSON.parse(localStorage.getItem("authData"));
@@ -86,6 +113,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.clear();
     Cookies.remove("authToken");
     window.location.reload();
+    navigate("/login")
   };
 
   const DataByCatogory=async (id)=>{
@@ -122,7 +150,10 @@ export const AuthProvider = ({ children }) => {
         isPaymentSuccessful,
         setIsPaymentSuccessful,
         getOrderHistory,
-        DataByCatogory
+        DataByCatogory,
+        setStores,
+        stores,
+        hasMore
       }}
     >
       {children}

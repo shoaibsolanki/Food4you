@@ -72,5 +72,18 @@ class DataService {
   GetItemByCatogory(id, saasid){
     return https.get(`item/view-menu-by-category/${id}/${saasid}`)
   }
+
+  getAddressofStores(){
+    return https.get(`/storeMaster/get-store-address`)
+  }
+  GetStoreByAddress(address){
+    return https.get(`/storeMaster/get-store-Byaddress/${address}`)
+  }
+  GetCuisne(){
+    return https.get(`/storeMaster/get-cuisines`)
+  }
+  GetStoreByCuisine(address,cuisine_id){
+    return https.get(`/storeMaster/get-store-Byaddress/${address}/${cuisine_id}`)
+  }
 }
 export default new DataService();
