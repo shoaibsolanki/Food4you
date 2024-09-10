@@ -1,6 +1,6 @@
 import React from 'react';
 import storimg from '../imgs/storeimg.png';
-const RestaurantCard = ({store,onClick,name,address}) => {
+const RestaurantCard = ({store,onClick,name,address, cuisines}) => {
   return (
     <div onClick={()=>onClick(store)} className="cursor-pointer max-w-sm bg-white rounded-lg shadow-lg overflow-hidden">
       <img className="w-full h-48 object-cover" src={store.store_logo} alt="Restaurant" />
@@ -25,6 +25,12 @@ const RestaurantCard = ({store,onClick,name,address}) => {
         <div className="text-gray-500 text-sm">
           <span className="font-bold">Address: </span>
           {address}
+        </div>
+        <div className="text-gray-500 text-sm">
+          <span className="font-bold">cuisines: </span>
+          {cuisines && cuisines.map((el)=>{return(
+            <span key={el} className="mx-1">{el}</span>
+          )})}
         </div>
       </div>
     </div>

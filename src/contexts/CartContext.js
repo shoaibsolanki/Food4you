@@ -245,16 +245,16 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    if (totalPrice < 1999) {
-      const deliveryCharge = 100;
-      setDeliveryCharge(deliveryCharge);
-      setTotalPricePlusDeliveryCharge(totalPrice + deliveryCharge);
-    } else {
-      setDeliveryCharge(0); // Ensure delivery charge is reset when price is 1999 or more
-      setTotalPricePlusDeliveryCharge(totalPrice);
-    }
-  }, [totalPrice, cart]);
+  // useEffect(() => {
+  //   if (totalPrice < 1999) {
+  //     const deliveryCharge = 100;
+  //     setDeliveryCharge(deliveryCharge);
+  //     setTotalPricePlusDeliveryCharge(totalPrice + deliveryCharge);
+  //   } else {
+  //     setDeliveryCharge(0); // Ensure delivery charge is reset when price is 1999 or more
+  //     setTotalPricePlusDeliveryCharge(totalPrice);
+  //   }
+  // }, [totalPrice, cart]);
   const clearCartFromServer = async (UserId) => {
     try {
       const response = await DataService.DeleteAllItemsFromCart(

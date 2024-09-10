@@ -88,7 +88,7 @@ const ProductComponent = ({ flex_direction, data }) => {
                 ? `${data?.item_name?.slice(0, 30)}...`
                 : data?.item_name}
             </h2>
-            <p className="priceTitle">₹{data?.price}/-</p>
+            <p className="priceTitle">${data?.price}/-</p>
           </div>
           <AddToCartButton item={data} />
         </div>
@@ -114,7 +114,7 @@ const ProductComponent = ({ flex_direction, data }) => {
                 : data?.item_name}
             </h2>
                   <div className="flex items-baseline">
-                  <p className="priceTitle">₹{data?.price}/-</p>
+                  <p className="priceTitle">${data?.price}/-</p>
                     {/* <p className="text-sm text-gray-500 line-through ml-2">Rs 399</p> */}
                   </div>
                   {/* <span className="text-green-500 font-semibold text-sm">20% OFF</span> */}

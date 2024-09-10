@@ -24,11 +24,14 @@ const CheckoutPage = () => {
   }, 0);
   const navigate = useNavigate();
   const { id, saasId, storeId, mobileNumber, name } = authData;
+  const selectedStore = localStorage.getItem('selectedStore');
+  const parsedStore = selectedStore ? JSON.parse(selectedStore) : null;
+  const { saas_id, store_id } = parsedStore || {};
   const [billingAddress, setBillingAddress] = useState(false);
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [showNewAddressForm, setShowNewAddressForm] = useState(true);
   const [selectedAddress, setSelectedAddress] = useState();
-  const [selectedMethod, setSelectedMethod] = useState("cod");
+  const [selectedMethod, setSelectedMethod] = useState("COD");
   useEffect(() => {
     if (showNewAddressForm) {
       setSelectedAddress(null);
@@ -143,7 +146,11 @@ const CheckoutPage = () => {
   };
 
   const onSubmit = async (data) => {
-    handleRazorpayPayment(data);
+    if(selectedMethod == "online"){
+      handleRazorpayPayment(data);
+    }else{
+     await handlePlaceOrder(data);
+    }
   };
 
   const handleSaveAddress = async (data) => {
@@ -177,10 +184,10 @@ const CheckoutPage = () => {
         order_value: totalPrice,
         order_discount: 0,
         status: "pending",
-        payment_type: "Online Payment",
+        payment_type: selectedMethod,
         order_qty: TotalOrderQeuntity,
-        razorpay_order_id: paymentResponse.razorpay_order_id,
-        razorpay_payment_id: paymentResponse.razorpay_payment_id,
+        razorpay_order_id: selectedMethod=="online"?paymentResponse.razorpay_order_id:"",
+        razorpay_payment_id: selectedMethod=="online"?paymentResponse.razorpay_payment_id:"",
         order_date: new Date(),
         order_type: "Online",
         item_list: updatedCart,
@@ -194,10 +201,11 @@ const CheckoutPage = () => {
 
       if (response.status === 200) {
         console.log("Order placed");
-        getOrderHistory(storeId,saasId,id);
+        await getOrderHistory(storeId,saasId,id);
 
         clearCart();
         setIsPaymentSuccessful(true);
+        navigate("/cart/checkout/summary");
       }
     } catch (error) {
       console.error("Error placing order:", error);
@@ -241,7 +249,7 @@ const CheckoutPage = () => {
   // autenticationPart
 
   const [step, setStep] = useState(1);
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
@@ -255,18 +263,18 @@ const CheckoutPage = () => {
   };
 
   const onSubmitFirstStep = async (data) => {
-    if (data.mobile_numbers.length !== 10) {
-      setSnackbar({
-        open: true,
-        message: "Phone number must be 10 digits!",
-        severity: "error",
-      });
-      return;
-    }
+    // if (data.mobile_numbers.length !== 10) {
+    //   setSnackbar({
+    //     open: true,
+    //     message: "Phone number must be 10 digits!",
+    //     severity: "error",
+    //   });
+    //   return;
+    // }
     try {
-      setPhoneNumber(data.mobile_numbers);
+      setEmail(data.email);
       const response = await axios.get(
-        `${BASEURL.ENDPOINT_URL}otp/resend-otp/${data.mobile_numbers}`
+        `${BASEURL.ENDPOINT_URL}otp/resend-otp/${data.email}`
       );
 
       if (response.status === 200) {
@@ -303,7 +311,7 @@ const CheckoutPage = () => {
       const response = await axios.post(
         `${BASEURL.ENDPOINT_URL}otp/validate-otp`,
         {
-          mobile_no: phoneNumber,
+          mobile_no: email,
           otp: data.otp,
         }
       );
@@ -342,15 +350,15 @@ const CheckoutPage = () => {
         `${BASEURL.ENDPOINT_URL}customer/create`,
         {
           sub_centre_id: 1,
-          mobile_number: phoneNumber,
+          mobile_number: Math.ceil(Math.random() * 10000),
           password: data.password,
           address_3: "Building 5",
           discount_percent: 10.0,
-          email: "admin123@gmail.com",
+          email:email,
           name: `${data.first_name} ${data.last_name}`,
           card_number: Math.ceil(Math.random() * 10000),
-          store_id: "33001",
-          saas_id: "33",
+          store_id: store_id,
+          saas_id: saas_id,
           city: "city",
           state: "state",
           country: "India",
@@ -390,7 +398,7 @@ const CheckoutPage = () => {
       const response = await axios.post(
         `${BASEURL.ENDPOINT_URL}auth/user-login`,
         {
-          user_name: phoneNumber,
+          user_name: email,
           password: password,
         }
       );
@@ -489,16 +497,16 @@ const CheckoutPage = () => {
               </div>
               <div className="form-group">
                 <label htmlFor="phoneNumber" className="text-sm font-semibold">
-                  Phone Number
+                  Email
                 </label>
                 <input
-                  {...register("mobile_numbers", { required: false })}
-                  type="number"
+                  {...register("email", { required: false })}
+                  type="email"
                   id="phoneNumber"
-                  placeholder="Phone number"
+                  placeholder="Enter email"
                   className="bg-white mt-1 p-2 border border-gray-300 rounded-md w-full"
                 />
-                {errors.mobile_numbers && <span>This field is required</span>}
+                {errors.email && <span>This field is required</span>}
               </div>
               <button
                 type="submit"
@@ -817,18 +825,33 @@ const CheckoutPage = () => {
               type="radio"
               name="paymentMethod"
               value="online"
-              checked
+              checked ={selectedMethod === "online"}
               onChange={() => handlePaymentChange("online")}
               className="mr-2 bg-[#00B207] text-[#00B207]"
             />
             <h3 className="font-semibold text-[#4D4D4D]  ">Pay online</h3>
           </div>
+          <div
+            onClick={() => handlePaymentChange("COD")}
+            className={`mt-2 p-4  rounded-md flex gap-2 items-center bg-light `}
+          >
+            <input
+              type="radio"
+              name="paymentMethod"
+              value="Cash on Delivery"
+              checked ={selectedMethod === "COD"}
+              onChange={() => handlePaymentChange("COD")}
+              className="mr-2 bg-[#00B207] text-[#00B207]"
+            />
+            <h3 className="font-semibold text-[#4D4D4D]  ">Cash On Delivery</h3>
+          </div>
           <button
             onClick={handleSubmit(onSubmit)}
             className="w-full mt-4 py-2 bg-[#00B207] text-white rounded-full text-lg  hover:bg-[#017f05]transition-colors mx-auto"
           >
-            Pay and Place Order
+            {selectedMethod == "online"?"Pay and Place Order":"Place Order Now"}
           </button>
+          
         </div>
       ) : (
         ""

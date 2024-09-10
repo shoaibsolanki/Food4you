@@ -11,7 +11,7 @@ const Item = ({ index, name, price, quantity }) => {
         <h3 className="font-semibold text-lg">{name}</h3>
       </div>
       <div className="flex-none text-right">
-        <div className="text-gray-700">Price: ₹ {price}</div>
+        <div className="text-gray-700">Price:  {price}</div>
         <div className="text-gray-700">Quantity: {quantity}</div>
       </div>
     </div>

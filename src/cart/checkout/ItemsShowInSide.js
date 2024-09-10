@@ -100,7 +100,7 @@ const ItemsShowInSide = ({ items }) => {
                 </h3>
               </div>
               <div>
-                <p className="font-semibold">₹ {item.price}.00</p>
+                <p className="font-semibold">$ {item.price}.00</p>
                 <div className="flex items-center space-x-2 mt-2">
                   <button className="p-1 " onClick={() => handleDecrease(item)}>
                     <Remove />
@@ -115,23 +115,23 @@ const ItemsShowInSide = ({ items }) => {
           );
         })}
 
-        <div className="flex my-4 justify-between text-sm">
+        {/* <div className="flex my-4 justify-between text-sm">
           <p>Shipping </p>
-          {totalPrice < 1999 ? <p>₹{deliveryCharge}</p> : <p>Free</p>}
+          {totalPrice < 1999 ? <p>${deliveryCharge}</p> : <p>Free</p>}
         </div>
         <p className="text-[12px] underline font-semibold italic">
-          {"'"}FREE delivery on orders over ₹1999/-{"'"}
-        </p>
+          {"'"}FREE delivery on orders over $1999/-{"'"}
+        </p> */}
 
         <div className="flex justify-between text-sm">
           <p>Subtotal</p>
-          <p>₹ {totalPrice}</p>
+          <p>$ {totalPrice}</p>
         </div>
 
-        <div className="flex justify-between text-lg font-semibold">
+        {/* <div className="flex justify-between text-lg font-semibold">
           <p>Total</p>
-          <p>₹ {totalPricePlusDeliveryCharge}</p>
-        </div>
+          <p>$ {totalPricePlusDeliveryCharge}</p>
+        </div> */}
       </div>
     </div>
   );

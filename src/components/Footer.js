@@ -120,7 +120,7 @@ const Footer = () => {
       </div>
       <div className="text-star mb-4">
         <h2 className="text-lg font-semibold">Contact</h2>
-        <p className="text-muted-foreground">+91 1234567890</p>
+        <p className="text-muted-foreground">905-519-8673</p>
         <p className="text-muted-foreground">info@Food4You.com</p>
       </div>
       <div className="mb-4">
@@ -143,7 +143,9 @@ const Footer = () => {
         {/* <a href="#" aria-label="Facebook">
           <img aria-hidden="true" alt="facebook-icon" src="https://openui.fly.dev/openui/facebook.svg?text=📘" />
         </a> */}
-        <a href="#" aria-label="YouTube">
+        <a  href="https://wa.me/+19055198673"
+          target="_blank"
+          rel="noreferrer">
         <WhatsApp className="text-green-500" />{" "}
         </a>
       </div>

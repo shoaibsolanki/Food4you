@@ -1,6 +1,6 @@
 import { Call, WhatsApp } from "@mui/icons-material";
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthConext";
 import { useNavigate } from "react-router-dom";
@@ -16,7 +16,7 @@ const Navbar = ({ search, setSearch, data }) => {
 
   const navigate = useNavigate();
   const [userId, setUserId] = useState(null);
-
+  const location = useLocation()
   useEffect(() => {
     if (authData && authData.id) {
       setUserId(authData.id);
@@ -64,7 +64,7 @@ const Navbar = ({ search, setSearch, data }) => {
       >
         <div className="flex justify-between items-center w-full">
           <div className="max-md:w-full flex gap-8 items-center">
-            <Link to="/">
+            <Link to={`${location.pathname=='/'?"/landing":"/"}`}>
             <b className="text-white text-2xl">
             Food4You
             </b>

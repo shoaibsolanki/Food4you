@@ -72,7 +72,7 @@ const Login = () => {
             {...register("user_name", { required: true })}
             className="border-2 bg-white rounded h-9 w-full md:w-80 focus-visible:outline-none focus-visible:bg-lightPrimary focus-visible:text-primary px-2"
             type="text"
-            placeholder="Phone Number"
+            placeholder="Enter email or phone number"
           />
           {errors.user_name && (
             <p className="text-red-500">Phone Number is required</p>

@@ -11,10 +11,10 @@ const Store = () => {
     const [cuisine, setCuisine] = React.useState([])
     const navigate = useNavigate();
     const address = localStorage.getItem('deliveryAddress');
-    const onClick=(Store)=>{
-        localStorage.setItem('selectedStore', JSON.stringify(Store))
-         navigate('/')
-         fetchAndSetProducts();
+    const onClick=async(Store)=>{
+       await localStorage.setItem('selectedStore', JSON.stringify(Store))
+        fetchAndSetProducts();
+        navigate('/')
     }
    const getStores =async () => {
     try {
@@ -117,9 +117,9 @@ const Store = () => {
         }
       </Menu>
     </div>
-    <div className='w-full mx-auto my-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
-        {stores && stores?.map((el)=>{return(<RestaurantCard store={el} onClick={onClick}   name={el.store_name} address={el.store_address1}/>)})}
-    </div>
+    {stores.length >0? <div className='w-full mx-auto my-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
+        {stores && stores?.map((el)=>{return(<RestaurantCard store={el} onClick={onClick}   name={el.store_name} address={el.address} cuisines={el.cuisines}/>)})}
+    </div>: <div className='text-center text-lg font-medium bg-[#003f62] text-white'>No stores found.</div>}
     </>
   )
 }

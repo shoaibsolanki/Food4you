@@ -118,7 +118,7 @@ export const AuthProvider = ({ children }) => {
 
   const DataByCatogory=async (id)=>{
     try {
-      const response =await DataService.GetItemByCatogory(id, "8")
+      const response =await DataService.GetItemByCatogory(id, saas_id)
       console.log(response)
       if(response.data.status){
         const updatedProducts = response.data.data.map((item) => ({

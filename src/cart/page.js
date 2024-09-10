@@ -48,7 +48,7 @@ const CartItem = ({
         </Grid>
         <Grid item xs={2}>
           <Typography className="fw-bold" variant="body1">
-            ₹{item.price}
+            ${item.price}
           </Typography>
         </Grid>
         <Grid item xs={2}>
@@ -64,7 +64,7 @@ const CartItem = ({
         </Grid>
         <Grid item xs={1}>
           <Typography className="fw-bold" variant="body1">
-            ₹{item.price * item.product_qty}
+            ${item.price * item.product_qty}
           </Typography>
         </Grid>
         <Grid item xs={1}>
@@ -108,7 +108,7 @@ const CartItem = ({
           <div className="self-stretch flex flex-row items-start justify-between gap-[20px] text-primary-blue">
             <div className="flex flex-col items-start justify-start pt-1.5 px-0 pb-0">
               <b className="relative tracking-[0.5px] leading-[150%] inline-block min-w-[52px] whitespace-nowrap z-[1]">
-                ₹{item.price}/-
+                ${item.price}/-
                 <br />
                 {/* Total: Rs.{item.price * item.product_qty}/- */}
               </b>
@@ -275,7 +275,7 @@ const Cart = () => {
                     {loading ? <Skeleton width={70} /> : "Subtotal"}
                   </Typography>
                   <Typography variant="body1">
-                    {loading ? <Skeleton width={50} /> : `₹${totalPrice}`}
+                    {loading ? <Skeleton width={50} /> : `$${totalPrice}`}
                   </Typography>
                 </Box>
                 {loading ? (
@@ -303,7 +303,7 @@ const Cart = () => {
                     {loading ? <Skeleton width={90} /> : "Total amount"}
                   </Typography>
                   <Typography variant="body1">
-                    {loading ? <Skeleton width={50} /> : `₹${totalPrice}`}
+                    {loading ? <Skeleton width={50} /> : `$${totalPrice}`}
                   </Typography>
                 </Box>
                 <div className="flex justify-center">
@@ -428,7 +428,7 @@ const Cart = () => {
             <Box p={2} borderRadius={2}>
               <Box display="flex" justifyContent="space-between" my={1}>
                 <Typography variant="body1">Subtotal</Typography>
-                <Typography variant="body1">₹{totalPrice}</Typography>
+                <Typography variant="body1">${totalPrice}</Typography>
               </Box>
               <TextField
                 label="Enter coupon code"
@@ -437,12 +437,12 @@ const Cart = () => {
                 margin="normal"
                 InputProps={{ endAdornment: <Button>Apply</Button> }}
               />
-              <Select fullWidth displayEmpty defaultValue="">
+              {/* <Select fullWidth displayEmpty defaultValue="">
                 <MenuItem value="">India</MenuItem>
-              </Select>
+              </Select> */}
               <Box display="flex" justifyContent="space-between" my={2}>
                 <Typography variant="body1">Total amount</Typography>
-                <Typography variant="body1">₹{totalPrice}</Typography>
+                <Typography variant="body1">${totalPrice}</Typography>
               </Box>
               <div className="flex justify-center">
                 <button

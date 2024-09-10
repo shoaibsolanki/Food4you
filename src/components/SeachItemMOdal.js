@@ -34,7 +34,7 @@ function SeachItemMOdal({handleSearch,show,toggleModal,data}) {
           </div>
           <div className="row">
             <h2 className="product-title text-primary">{item.item_name}</h2>
-            <p className="priceTitle"> ₹{item.price}</p>
+            <p className="priceTitle"> ${item.price}</p>
             <Rating size={"sm"} />
           </div>
         </div>
