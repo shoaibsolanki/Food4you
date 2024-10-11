@@ -1,22 +1,38 @@
 import React, { useState } from "react";
 import mainposter from ".././imgs/Mainposter.jpg";
+import Checkoutmodal from "./MicroComponenets/Checkoutmodal";
+import { useAuth } from "../contexts/AuthConext";
 
 const HeroSection = ({ data }) => {
   const [isLoading, setIsLoading] = useState(true);
-
+ 
   const handleImageLoad = () => {
     setIsLoading(false);
   };
+  const selectedStore = localStorage.getItem('selectedStore');
+  const parsedStore = selectedStore ? JSON.parse(selectedStore) : null;
+  const { store_name,store_logo,address} = parsedStore || {};
 
-  return (
-    <div className="flex flex-col md:flex-row items-center justify-center gap-8 w-full mx-auto my-4">
+  return (<>
+    <div  className="relative h-48 sm:h-64 md:h-80 lg:h-96 rounded-lg overflow-hidden mb-6">
       {/* {isLoading && <ImageSkeleton />} */}
-      <div class="sm:w-[1300px] sm:py-16 min-w-[350px] bg-gradient-to-r from-pink-500 to-orange-300 p-6 rounded-lg shadow-lg text-center">
-    <h2 class="text-2xl font-bold text-white">Up to 40% OFF</h2>
-    <p class="text-white mt-2">ON YOUR FIRST ORDER</p>
-    <button class="mt-4 bg-white text-pink-500 font-semibold py-2 px-4 rounded-lg hover:bg-zinc-200">ORDER NOW</button>
-</div>
+      {/* <div  className="sm:w-[1300px] sm:py-16 min-w-[350px] p-6 rounded-lg shadow-lg text-center"> */}
+    <img
+      src={store_logo}
+      alt="Store Logo"
+      className="w-full h-full object-cover"
+      />
+    {/* <h2 className="text-2xl font-bold text-white">Up to 40% OFF</h2>
+    <p className="text-white mt-2">ON YOUR FIRST ORDER</p>
+    <button className="mt-4 bg-white text-pink-500 font-semibold py-2 px-4 rounded-lg hover:bg-zinc-200">ORDER NOW</button> */}
+  {/* </div> */}
+  <div className=" float-start">
+    <h1 className="font-bold text-2xl font-Inter">{store_name}</h1>
+    <span>Indian</span> <br />
+    <span>{address}</span>
+  </div>
     </div>
+    </>
   );
 };
 

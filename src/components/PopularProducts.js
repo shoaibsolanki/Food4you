@@ -71,9 +71,9 @@ const PopularProducts = ({ data, setData }) => {
   return (
     <div id="popular-products" className="my-2 mx-auto max-w-[1600px]">
       <div className="flex justify-between items-center px-4 md:px-0">
-        <h2 className="text-primary text-3xl font-semibold">
+        {/* <h2 className="text-primary text-3xl font-semibold">
         Today’s Special
-        </h2>
+        </h2> */}
         {/* <ul className="flex flex-wrap justify-between gap-4">
           {allcategory.map((item, index) => (
             <li
@@ -95,10 +95,10 @@ const PopularProducts = ({ data, setData }) => {
       </div>
       <InfiniteScroll
       dataLength={products.length} // This is the length of the data so far
-      next={fetchAndSetProducts} // Function to fetch more data
+      // next={fetchAndSetProducts} // Function to fetch more data
       hasMore={hasMore} // Flag to show if more data is available
       loader={<h4 className="text-center bg-[#003f62] text-white">Loading...</h4>} // Loader component
-      endMessage={<p className="text-center bg-[#003f62] text-white">No more products available</p>} // Message when no more data is available
+      // endMessage={<p className="text-center bg-[#003f62] text-white">No more products available</p>} // Message when no more data is available
     >
       <div className="w-full mx-auto my-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {products

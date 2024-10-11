@@ -77,7 +77,7 @@ class DataService {
     return https.get(`/storeMaster/get-store-address`)
   }
   GetStoreByAddress(address){
-    return https.get(`/storeMaster/get-store-Byaddress/${address}`)
+    return https.get(`/storeMaster/get-store-Bysaasid/${address}`)
   }
   GetCuisne(){
     return https.get(`/storeMaster/get-cuisines`)

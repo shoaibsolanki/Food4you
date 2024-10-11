@@ -34,12 +34,12 @@ function App() {
     <AuthProvider>
       <CartProvider>
         <RootLayout>
+          
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
-            <Route path="/landing" element={<Landingpage />} />
             <Route path="/stores" element={<Store />} />
 
             <Route path="/cart/checkout/summary" element={<OrderComplete />} />
@@ -65,6 +65,7 @@ function App() {
           </Routes>
         </RootLayout>
         <Routes>
+         <Route path="/landing" element={<Landingpage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/Signup" element={<Signup />} />
         </Routes>

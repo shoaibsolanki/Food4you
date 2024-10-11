@@ -20,12 +20,14 @@ const HorizontalCategoryList = () => {
       const response = await DataService.GetCategoryList(saas_id)
       console.log(response)
       setcategories(response.data.data)
+      DataByCatogory(response?.data?.data[0]?.category_id)
     } catch (error) {
       console.log(error)
     }
   }
   useEffect(() => {
     GetCatogroy()
+    
   }, [])
   
 
@@ -33,13 +35,13 @@ const HorizontalCategoryList = () => {
 
   return (<>
   
-        <h2 className="text-primary text-3xl font-semibold">
+        {/* <h2 className="text-primary text-3xl font-semibold">
         Popular categories
-        </h2>
+        </h2> */}
     <div className="w-full mx-auto my-8 overflow-x-auto whitespace-nowrap">
       <div className="inline-flex space-x-4">
         {categories.map((category, index) => (
-          <div key={index} className="inline-block text-center w-32">
+          <div key={index} className="inline-block text-center w-fit">
             {/* <img
               className="w-24 h-24 object-cover rounded-full mx-auto"
               src={category.image}

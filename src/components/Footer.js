@@ -8,7 +8,7 @@ const Footer = () => {
 
   const selectedStore = localStorage.getItem('selectedStore');
   const parsedStore = selectedStore ? JSON.parse(selectedStore) : null;
-  const { address} = parsedStore || {};
+  const { address,email} = parsedStore || {};
 
   return (
     <>
@@ -121,7 +121,7 @@ const Footer = () => {
       <div className="text-star mb-4">
         <h2 className="text-lg font-semibold">Contact</h2>
         <p className="text-muted-foreground">905-519-8673</p>
-        <p className="text-muted-foreground">info@Food4You.com</p>
+        <p className="text-muted-foreground">{email}</p>
       </div>
       <div className="mb-4">
         <input

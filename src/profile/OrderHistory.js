@@ -3,14 +3,30 @@ import { useAuth } from "../contexts/AuthConext";
 import Item from "./Componenets/items";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
-
+import { Phone } from "@mui/icons-material";
+import { MapPin } from "@phosphor-icons/react";
+import FileCopyIcon from '@mui/icons-material/FileCopy';
+import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
 const Orders = ({ className = "" }) => {
-  const { allOrders, getOrderHistory ,authData} = useAuth();
+  const { allOrders, getOrderHistory ,authData,getLocationAndOpenMaps} = useAuth();
+  const selectedStore = localStorage.getItem('selectedStore');
+  const parsedStore = selectedStore ? JSON.parse(selectedStore) : null;
+  const { saas_id, store_id ,store_logo,store_name,address,phone_no} = parsedStore || {};
   const itemsPerPage = 3;
   const [currentPage, setCurrentPage] = useState(1);
   const { id, saasId, storeId, mobileNumber, name } = authData;
   const totalPages = Math.ceil(allOrders?.length / itemsPerPage);
-
+  const [copied, setCopied] = useState(false)
+    const copyToClipboard = () => {
+      navigator.clipboard.writeText(phone_no)
+        .then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        })
+        .catch((error) => {
+          console.error('Error copying text to clipboard:', error);
+        });
+    };
   const handleNextPage = () => {
     setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
   };
@@ -39,9 +55,45 @@ const Orders = ({ className = "" }) => {
                 key={index}
                 className="bg-white shadow-md rounded-lg p-4 border border-gray-200"
               >
-                <div className="flex flex-col mb-4">
+                {order?.order_type == "Pickup" && <>
+                <div className="relative h-48 sm:h-64 md:h-80 lg:h-96 rounded-lg overflow-hidden mb-6">
+                <img
+                  src={store_logo}
+                  alt="Various food dishes"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="mb-6">
+                <h1 className="text-3xl font-bold mb-2">{store_name}</h1>
+                <p className="text-gray-600 flex items-start sm:items-center sm:flex-row">
+                  <MapPin className="w-5 h-5 mr-2 mb-2 sm:mb-0" />
+                  <span>{address}</span>
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
+                <div className="flex items-center">
+                  <Phone className="w-5 h-5 mr-2" />
+                  <span className="font-semibold text-lg">{phone_no}</span>
+                </div>
+                <button
+                  onClick={copyToClipboard}
+                  className="flex items-center text-primary hover:text-primary-dark transition-colors duration-200"
+                >
+                  <FileCopyIcon className="w-5 h-5 mr-2" />
+                  {copied ? 'Copied!' : 'Copy number'}
+                </button>
+                <button
+                  onClick={getLocationAndOpenMaps}
+                  className="flex items-center text-primary hover:text-primary-dark transition-colors duration-200"
+                >
+                  <DirectionsWalkIcon className="w-5 h-5 mr-2" />
+                  Directions
+                </button>
+              </div></>}
+                <div className="flex flex-col mb-4 mt-2">
                   <div className="text-lg font-medium">
                     Order ID: {order.order_id}
+                    <span className="mx-4">{order?.order_type}</span>
                   </div>
                   <div className="text-sm text-gray-600">
                     Date: {order.order_date}
@@ -50,15 +102,16 @@ const Orders = ({ className = "" }) => {
                     Status:{" "}
                     <span
                       className={`text-sm text-white font-semibold py-[4px] px-[8px] rounded-lg ${
-                        order.status === "PENDING" ? "bg-red-400" : "bg-green-400"
+                        order.status === "pending" ? "bg-red-400" : "bg-green-400"
                       }`}
                     >
                       {order.status}
                     </span>
                   </div>
+                    
                 </div>
                 <div className="flex flex-col">
-                  {order.order_details?.map((item, idx) => (
+                  {order?.order_details?.map((item, idx) => (
                     <Item
                       key={idx}
                       index={idx + 1}

@@ -8,6 +8,11 @@ import { BASEURL } from "../../services/http-Pos";
 import { useNavigate } from "react-router-dom";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
+import GpsFixedIcon from '@mui/icons-material/GpsFixed';
+import { Phone } from "@mui/icons-material";
+import { MapPin } from "@phosphor-icons/react";
+import FileCopyIcon from '@mui/icons-material/FileCopy';
+import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
 const CheckoutPage = () => {
   const {
     authData,
@@ -15,6 +20,10 @@ const CheckoutPage = () => {
     login,
     isAuthenticated,
     getOrderHistory,
+    getLocation,
+    location,
+    getaddress,
+    getLocationAndOpenMaps
   } = useAuth();
   const { cart, totalPrice, clearCart, totalPricePlusDeliveryCharge } =
     useCart();
@@ -26,12 +35,20 @@ const CheckoutPage = () => {
   const { id, saasId, storeId, mobileNumber, name } = authData;
   const selectedStore = localStorage.getItem('selectedStore');
   const parsedStore = selectedStore ? JSON.parse(selectedStore) : null;
-  const { saas_id, store_id } = parsedStore || {};
+  const { saas_id, store_id ,store_logo,store_name,address,phone_no} = parsedStore || {};
   const [billingAddress, setBillingAddress] = useState(false);
   const [savedAddresses, setSavedAddresses] = useState([]);
-  const [showNewAddressForm, setShowNewAddressForm] = useState(true);
+  const [showNewAddressForm, setShowNewAddressForm] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState();
   const [selectedMethod, setSelectedMethod] = useState("COD");
+  const [defaultAddress, setDefaultAddress] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [deliveryMethod, setDeliveryMethod] = useState('Delivery')
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "",
+  });
   useEffect(() => {
     if (showNewAddressForm) {
       setSelectedAddress(null);
@@ -46,7 +63,9 @@ const CheckoutPage = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+    isSubmitting,
+    reset
+  } = useForm({defaultAddress});
 
   const handleAddressSelect = (id) => {
     setSelectedAddress(id);
@@ -72,7 +91,7 @@ const CheckoutPage = () => {
   const createRazorpayOrder = async () => {
     try {
       const data = {
-        amount: totalPricePlusDeliveryCharge ,
+        amount: totalPrice ,
         currency: "INR",
       };
 
@@ -104,7 +123,7 @@ const CheckoutPage = () => {
       const orderId = await createRazorpayOrder();
       const options = {
         key: "rzp_test_USk6kNFvt2WXOE",
-        amount: totalPricePlusDeliveryCharge ,
+        amount: totalPrice ,
         currency: "INR",
         name: "Food4You",
         description: "Test Transaction",
@@ -146,10 +165,60 @@ const CheckoutPage = () => {
   };
 
   const onSubmit = async (data) => {
-    if(selectedMethod == "online"){
       handleRazorpayPayment(data);
-    }else{
-     await handlePlaceOrder(data);
+  };
+  
+  const onCodSubmit = async (data,paymentResponse) => {
+    try {
+      if(!data.address_id && deliveryMethod == "Delivery"){
+        console.log(data.address_id);
+         setSnackbar({
+          open: true,
+          message: "Please select an address",
+          severity: "error",
+        });
+        return;
+      }
+      setIsLoading(true)
+      const updatedCart = cart.map((item) => ({ ...item, productQty: 0 }));
+      const orderInformations = {
+        address_id: deliveryMethod == "Pickup"?"":data.address_id,
+        customer_id: id,
+        customer_name: name,
+        mobile_number: mobileNumber,
+        saas_id: saas_id,
+        store_id: store_id,
+        order_tax: 0,
+        order_value: totalPrice,
+        order_discount: 0,
+        status: "pending",
+        payment_type: selectedMethod,
+        order_qty: TotalOrderQeuntity,
+        razorpay_order_id: selectedMethod=="online"?paymentResponse.razorpay_order_id:"",
+        razorpay_payment_id: selectedMethod=="online"?paymentResponse.razorpay_payment_id:"",
+        order_date: new Date(),
+        order_type: deliveryMethod,
+        item_list: updatedCart,
+      };
+
+      localStorage.setItem("orderInformations", JSON.stringify(cart));
+      const response = await DataService.CreateOrder(orderInformations);
+
+      localStorage.setItem("orderMaster", JSON.stringify(response.data));
+      console.log("Order placed:", response);
+
+      if (response.status === 200) {
+        console.log("Order placed");
+        await getOrderHistory(storeId,saasId,id);
+
+        clearCart();
+        setIsPaymentSuccessful(true);
+        navigate("/cart/checkout/summary");
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error("Error placing order:", error);
+      setIsLoading(false);
     }
   };
 
@@ -165,6 +234,8 @@ const CheckoutPage = () => {
       state: data.state,
       status: "Active",
       customer_type: "Regular",
+      latitude: location.latitude,
+      longitude: location.longitude,
     };
 
     await saveAddress(addressForSave);
@@ -250,14 +321,11 @@ const CheckoutPage = () => {
 
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
+  const [Existuser, setExistUser] = useState(false);
   const [otp, setOtp] = useState("");
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "",
-  });
+  
   const handleCloseSnackbar = () => {
     setSnackbar({ open: false, message: "", severity: "" });
   };
@@ -271,23 +339,36 @@ const CheckoutPage = () => {
     //   });
     //   return;
     // }
+    setIsLoading(true);
     try {
       setEmail(data.email);
       const response = await axios.get(
         `${BASEURL.ENDPOINT_URL}otp/resend-otp/${data.email}`
       );
 
-      if (response.status === 200) {
+      if (response.data.status) {
+        if(response.data.message === "Email Already Registered"){
+          setExistUser(true);
+        }
         setSnackbar({
           open: true,
           message: "OTP sent successfully!",
           severity: "success",
         });
-
+        setIsLoading(false);
         setStep(2);
+    
+      }else{
+        setIsLoading(false);
+        setSnackbar({
+          open: true,
+          message: response?.data.message,
+          severity: "error",
+        });
       }
     } catch (error) {
-      if (error.response.data.message == "User Already Registered") {
+      setIsLoading(false);
+      if (error?.response?.data?.message == "User Already Registered") {
         setSnackbar({
           open: true,
           message: "User Already Registered!",
@@ -308,6 +389,7 @@ const CheckoutPage = () => {
 
   const onSubmitSecondStep = async (data) => {
     try {
+      setIsLoading(true);
       const response = await axios.post(
         `${BASEURL.ENDPOINT_URL}otp/validate-otp`,
         {
@@ -316,14 +398,21 @@ const CheckoutPage = () => {
         }
       );
       if (response.status === 200) {
-        setSnackbar({
-          open: true,
-          message: "OTP validated successfully!",
-          severity: "success",
-        });
-        setStep(3);
+        if(Existuser){
+          handleLoginSubmit(response?.data?.password);
+        }else{
+          setIsLoading(false);
+          setSnackbar({
+            open: true,
+            message: "OTP validated successfully!",
+            severity: "success",
+          });
+          setStep(3);
+        }
+
       }
     } catch (error) {
+      setIsLoading(false);
       setSnackbar({
         open: true,
         message: "Failed to validate OTP.",
@@ -341,7 +430,7 @@ const CheckoutPage = () => {
       });
       return;
     }
-
+     setIsLoading(true);
     const today = new Date();
     const currentDate = today.toLocaleDateString();
 
@@ -350,7 +439,7 @@ const CheckoutPage = () => {
         `${BASEURL.ENDPOINT_URL}customer/create`,
         {
           sub_centre_id: 1,
-          mobile_number: Math.ceil(Math.random() * 10000),
+          mobile_number:data.mobile_number,
           password: data.password,
           address_3: "Building 5",
           discount_percent: 10.0,
@@ -374,7 +463,7 @@ const CheckoutPage = () => {
           customer_type: "CUSTOMER",
         }
       );
-      if (response.status === 200) {
+      if (response.data.status ) {
         setCustomerName(data.first_name, data.last_name);
         setSnackbar({
           open: true,
@@ -383,8 +472,18 @@ const CheckoutPage = () => {
         });
         // Registration successful, handle next steps
         handleLoginSubmit(data.password);
+      }else{
+        setStep(1)
+        setIsLoading(false);
+        setSnackbar({
+          open: true,
+          message: response.data.message,
+          severity: "error",
+        });
       }
     } catch (error) {
+      setStep(1)
+      setIsLoading(false);
       setSnackbar({
         open: true,
         message: "Failed to register.",
@@ -404,6 +503,7 @@ const CheckoutPage = () => {
       );
       const redirectUrl = sessionStorage.getItem("redirectAfterLogin");
       if (response.data.status) {
+        setIsLoading(false);
         const token = response.data.data.jwt_response;
         const user = response.data.data.customer_data;
         // Handle login success, e.g., store token, navigate to dashboard, etc.
@@ -423,9 +523,21 @@ const CheckoutPage = () => {
           }
         }
       } else {
+        setIsLoading(false);
+        setSnackbar({
+          open: true,
+          message: "Auto Login failed!",
+          severity: "error",
+        });
         // Handle login failure
       }
     } catch (error) {
+      setIsLoading(false);
+      setSnackbar({
+        open: true,
+        message: "Failed to login. Please try again later.",
+        severity: "error",
+      });
       // Handle error
     }
   };
@@ -437,18 +549,19 @@ const CheckoutPage = () => {
     const fetchStates = async () => {
       try {
         const response = await fetch(
-          "https://countriesnow.space/api/v0.1/countries/states",
+          "https://countriesnow.space/api/v0.1/countries/states/q?country=Canada",
           {
-            method: "POST",
+            method: "GET",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-              country: "India",
-            }),
+            // body: JSON.stringify({
+            //   country: "Canada",
+            // }),
           }
         );
         const data = await response.json();
+        console.log(data)
         setStates(data.data.states);
       } catch (error) {
         console.error("Error fetching states:", error);
@@ -458,6 +571,39 @@ const CheckoutPage = () => {
     fetchStates();
   }, []);
 
+  const GetCurrentaddress = async () => {
+     await getLocation()
+    console.log(getaddress )
+   
+    }
+
+    useEffect(() => {
+      if(getaddress){
+        reset({
+          street: getaddress.street,
+          city: getaddress.town,
+          state: getaddress.state,
+          zipcode: getaddress.postalCode,
+          state: getaddress.Province,
+          country: getaddress.country,
+        })
+      }
+    }, [getaddress])
+    
+    const [copied, setCopied] = useState(false)
+    const copyToClipboard = () => {
+      navigator.clipboard.writeText(phone_no)
+        .then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        })
+        .catch((error) => {
+          console.error('Error copying text to clipboard:', error);
+        });
+    };
+      // const [userLocation, setUserLocation] = useState({ latitude: null, longitude: null });
+    
+      
   return (
     <div className="w-full mx-auto p-4">
       {!isAuthenticated && (
@@ -508,11 +654,25 @@ const CheckoutPage = () => {
                 />
                 {errors.email && <span>This field is required</span>}
               </div>
+              <div className="form-group">
+                <label htmlFor="phoneNumber" className="text-sm font-semibold">
+                  Mobile Number
+                </label>
+                <input
+                  {...register("mobile_number", { required: false })}
+                  type="number"
+                  id="mobile_number"
+                  placeholder="Enter your mobile number"
+                  className="bg-white mt-1 p-2 border border-gray-300 rounded-md w-full"
+                />
+                {errors.mobile_number && <span>This field is required</span>}
+              </div>
               <button
+              disabled={isLoading}
                 type="submit"
                 className=" h-12 mt-5 bg-second text-white text-lg font-semibold hover:bg-yellow-600 transition-colors"
               >
-                Next
+                {isLoading?"Otp sending...":"Next"}
               </button>
             </form>
           )}
@@ -522,6 +682,7 @@ const CheckoutPage = () => {
               onSubmit={handleSubmit(onSubmitSecondStep)}
               className="grid grid-cols-1 gap-4"
             >
+              <span>Otp sent to your email '{email}'</span>
               <div className="form-group">
                 <label htmlFor="otp" className="text-sm font-semibold">
                   Enter OTP
@@ -537,6 +698,7 @@ const CheckoutPage = () => {
               </div>
               <button
                 type="submit"
+                disabled={isLoading}
                 className=" h-12 mt-5 bg-second text-white text-lg font-semibold hover:bg-yellow-600 transition-colors"
               >
                 Validate OTP
@@ -580,6 +742,7 @@ const CheckoutPage = () => {
               </div>
               <button
                 type="submit"
+                disabled={isLoading}
                 className="h-12 mt-5 bg-second text-white text-lg font-semibold hover:bg-yellow-600 transition-colors"
               >
                 Register
@@ -587,31 +750,31 @@ const CheckoutPage = () => {
             </form>
           )}
 
-          <Snackbar
-            open={snackbar.open}
-            autoHideDuration={2000}
-            onClose={handleCloseSnackbar}
-          >
-            <Alert
-              onClose={handleCloseSnackbar}
-              severity={snackbar.severity}
-              sx={{ width: "100%" }}
-            >
-              {snackbar.message}
-            </Alert>
-          </Snackbar>
+         
         </div>
       )}
 
       {showNewAddressForm && isAuthenticated ? (
         <div className="border border-gray-300 p-6 mb-6 rounded-md">
+          <div className="flex ">
+            
           <h3 className="text-primary uppercase font-medium text-sm">
             <span className="bg-light py-[1px] px-[3px] text-sm rounded-sm mr-1 ">
               1.2
             </span>{" "}
-            add Shipping address
-          </h3>
+            add Delivery Address
+          </h3> 
+          <button
+                  onClick={() => {GetCurrentaddress()}}
+                  className=" font-bold text-green-500 text-lg font-semibold rounded px-2 hover:bg-yellow-600 transition-colors"
+                  >
+                  <GpsFixedIcon className="mx-2 text-green-500 hover:text-white"/>
+                  Current Location
+                </button>
+                  </div>
+         
           <form className="" onSubmit={handleSubmit(handleSaveAddress)}>
+          
             <div className="grid gap-4 grid-cols-2 max-md:grid-cols-1 w-full">
               <div className="form-group ">
                 <label
@@ -645,14 +808,14 @@ const CheckoutPage = () => {
               </div>
               <div className="form-group">
                 <label htmlFor="state" className="text-sm font-semibold">
-                  State
+                Province
                 </label>
                 <select
                   {...register("state", { required: true })}
                   id="state"
                   className="bg-white mt-1 p-2 border border-gray-300 rounded-md w-full"
                 >
-                  <option value="">Select your state</option>
+                  <option value="">Select your Province</option>
                   {states.map((state, index) => (
                     <option key={index} value={state.name}>
                       {state.name}
@@ -667,17 +830,30 @@ const CheckoutPage = () => {
               </div>
               <div className="form-group">
                 <label htmlFor="zipCode" className="text-sm font-semibold">
-                  Zip Code
+                  Postal Code
                 </label>
                 <input
                   {...register("zipcode", { required: true })}
                   type="number"
                   id="zipCode"
-                  placeholder="Zip Code"
+                  placeholder="Postal Code"
                   className="bg-white mt-1 p-2 border border-gray-300 rounded-md w-full"
                 />
                 {errors.zipcode && <span>This field is required</span>}
               </div>
+              {/* <div className="form-group">
+                <label htmlFor="zipCode" className="text-sm font-semibold">
+                  Mobile Number
+                </label>
+                <input
+                  {...register("mobail_number", { required: true })}
+                  type="number"
+                  id="mobail_number"
+                  placeholder="Mobile Number"
+                  className="bg-white mt-1 p-2 border border-gray-300 rounded-md w-full"
+                />
+                {errors.zipcode && <span>This field is required</span>}
+              </div> */}
               <div className="form-group ">
                 <label className="text-sm font-semibold">Address Type *</label>
                 <div className="mt-2 flex space-x-4">
@@ -734,15 +910,30 @@ const CheckoutPage = () => {
                   <span className="bg-light py-[1px] px-[3px] text-sm rounded-sm mr-1 ">
                     1
                   </span>{" "}
-                  Select Address
+                  {deliveryMethod === 'Delivery' ? 'SELECT ADDRESS' : 'Store address'}
                 </h3>{" "}
+                <div className="flex rounded-full bg-gray-200 text-sm my-2">
+              <button
+                className={`px-4 py-2 rounded-full ${deliveryMethod === 'Delivery' ? 'bg-primary text-white' : ''}`}
+                onClick={() => setDeliveryMethod('Delivery')}
+              >
+                Delivery
+              </button>
+              <button
+                className={`px-4 py-2 rounded-full ${deliveryMethod === 'Pickup' ? 'bg-primary text-white' : ''}`}
+                onClick={() => setDeliveryMethod('Pickup')}
+              >
+                Pickup
+              </button>
+            </div>
+              </div>
+              { deliveryMethod === 'Delivery' ?<div>
                 <button
                   className="text-primary border-[1px] border-gray-200 py-2 px-6 uppercase font-medium text-sm hover:bg-gray-100  max-sm:w-full mt-2"
                   onClick={() => setShowNewAddressForm(true)}
                 >
                   Add New Address
                 </button>
-              </div>
               {savedAddresses.map((item, index) => {
                 return (
                   <div
@@ -804,12 +995,46 @@ const CheckoutPage = () => {
                   </div>
                 );
               })}
+              </div>:<><div className="relative h-48 sm:h-64 md:h-80 lg:h-96 rounded-lg overflow-hidden mb-6">
+                <img
+                  src={store_logo}
+                  alt="Various food dishes"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="mb-6">
+                <h1 className="text-3xl font-bold mb-2">{store_name}</h1>
+                <p className="text-gray-600 flex items-start sm:items-center flex-col sm:flex-row">
+                  <MapPin className="w-5 h-5 mr-2 mb-2 sm:mb-0" />
+                  <span>{address}</span>
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
+                <div className="flex items-center">
+                  <Phone className="w-5 h-5 mr-2" />
+                  <span className="font-semibold text-lg">{phone_no}</span>
+                </div>
+                <button
+                  onClick={copyToClipboard}
+                  className="flex items-center text-primary hover:text-primary-dark transition-colors duration-200"
+                >
+                  <FileCopyIcon className="w-5 h-5 mr-2" />
+                  {copied ? 'Copied!' : 'Copy number'}
+                </button>
+                <button
+                  onClick={getLocationAndOpenMaps}
+                  className="flex items-center text-primary hover:text-primary-dark transition-colors duration-200"
+                >
+                  <DirectionsWalkIcon className="w-5 h-5 mr-2" />
+                  Directions
+                </button>
+              </div></>}
             </div>
           )}
         </>
       )}
 
-      {!showNewAddressForm ? (
+      {!showNewAddressForm && isAuthenticated? (
         <div className="p-4 border-[1px] rounded-md">
           <h3 className="text-primary uppercase font-medium text-sm">
             <span className="bg-light py-[1px] px-[3px] text-sm rounded-sm mr-1 ">
@@ -845,12 +1070,21 @@ const CheckoutPage = () => {
             />
             <h3 className="font-semibold text-[#4D4D4D]  ">Cash On Delivery</h3>
           </div>
-          <button
+          {selectedMethod == "online"? <button
             onClick={handleSubmit(onSubmit)}
+            disabled={isSubmitting}
             className="w-full mt-4 py-2 bg-[#00B207] text-white rounded-full text-lg  hover:bg-[#017f05]transition-colors mx-auto"
           >
-            {selectedMethod == "online"?"Pay and Place Order":"Place Order Now"}
-          </button>
+            Pay and Place Order
+          </button>:
+          
+          <button
+            onClick={handleSubmit(onCodSubmit)}
+            disabled={isLoading}
+            className="w-full mt-4 py-2 bg-[#00B207] text-white rounded-full text-lg  hover:bg-[#017f05]transition-colors mx-auto"
+          >
+           {isLoading?"Order Booking..." :"Place Order"}
+          </button>}
           
         </div>
       ) : (
@@ -900,6 +1134,19 @@ const CheckoutPage = () => {
           </div>
         </div>
       </dialog>
+      <Snackbar
+            open={snackbar.open}
+            autoHideDuration={2000}
+            onClose={handleCloseSnackbar}
+          >
+            <Alert
+              onClose={handleCloseSnackbar}
+              severity={snackbar.severity}
+              sx={{ width: "100%" }}
+            >
+              {snackbar.message}
+            </Alert>
+          </Snackbar>
     </div>
   );
 };

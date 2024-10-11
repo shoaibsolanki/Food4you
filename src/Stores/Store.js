@@ -13,7 +13,7 @@ const Store = () => {
     const address = localStorage.getItem('deliveryAddress');
     const onClick=async(Store)=>{
        await localStorage.setItem('selectedStore', JSON.stringify(Store))
-        fetchAndSetProducts();
+        // fetchAndSetProducts();
         navigate('/')
     }
    const getStores =async () => {
@@ -64,7 +64,7 @@ const Store = () => {
 
   return (
     <>
-    <div className="flex items-center space-x-4 my-2">
+    {/* <div className="flex items-center space-x-4 my-2">
     <div className="p-2 bg-blue-900 text-white rounded-md">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -81,7 +81,6 @@ const Store = () => {
           />
         </svg>
       </div>
-      {/* //add drop down menu  */}
       <Button
       style={{
         borderRadius: '5px',
@@ -113,10 +112,11 @@ const Store = () => {
           'aria-labelledby': 'basic-button',
         }}
       >
-        {cuisine && cuisine?.map((item)=>{return(<MenuItem onClick={()=>{getStoresByCuisine(item)}}>{item}</MenuItem>)}) 
-        }
-      </Menu>
-    </div>
+        {/* {cuisine && cuisine?.map((item)=>{return(<MenuItem onClick={()=>{getStoresByCuisine(item)}}>{item}</MenuItem>)}) 
+        } */}
+      {/* </Menu> */}
+    {/* </div>  */}
+    <h1 className='font-bold font-Inter text-2xl'>Popular near you</h1>
     {stores.length >0? <div className='w-full mx-auto my-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
         {stores && stores?.map((el)=>{return(<RestaurantCard store={el} onClick={onClick}   name={el.store_name} address={el.address} cuisines={el.cuisines}/>)})}
     </div>: <div className='text-center text-lg font-medium bg-[#003f62] text-white'>No stores found.</div>}

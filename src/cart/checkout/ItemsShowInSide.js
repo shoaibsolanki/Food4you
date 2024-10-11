@@ -19,7 +19,7 @@ const ItemsShowInSide = ({ items }) => {
   const [total, setTotal] = useState(totalPrice);
   const [isLoading, setIsLoading] = useState(true);
   const { isAuthenticated } = useAuth();
-
+  const {bank_account} = JSON.parse(localStorage.getItem('selectedStore')) || {};
   useEffect(() => {
     // Simulate loading time
     const timer = setTimeout(() => {
@@ -100,8 +100,8 @@ const ItemsShowInSide = ({ items }) => {
                 </h3>
               </div>
               <div>
-                <p className="font-semibold">$ {item.price}.00</p>
-                <div className="flex items-center space-x-2 mt-2">
+                <p className="font-semibold">{bank_account} {item.price}.00</p>
+                {/* <div className="flex items-center space-x-2 mt-2">
                   <button className="p-1 " onClick={() => handleDecrease(item)}>
                     <Remove />
                   </button>
@@ -109,7 +109,7 @@ const ItemsShowInSide = ({ items }) => {
                   <button className="p-1 " onClick={() => handleIncrease(item)}>
                     <AddIcon />
                   </button>
-                </div>
+                </div> */}
               </div>
             </div>
           );
@@ -125,7 +125,7 @@ const ItemsShowInSide = ({ items }) => {
 
         <div className="flex justify-between text-sm">
           <p>Subtotal</p>
-          <p>$ {totalPrice}</p>
+          <p>{bank_account} {totalPrice}</p>
         </div>
 
         {/* <div className="flex justify-between text-lg font-semibold">

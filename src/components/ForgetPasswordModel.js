@@ -117,10 +117,10 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
         return (
           <>
             <Typography variant="body2" paragraph>
-              Enter your mobile number to receive an OTP.
+              Enter your email to receive an OTP.
             </Typography>
             <TextField
-              label="Mobile Number"
+              label="Enter Email "
               variant="outlined"
               fullWidth
               margin="normal"

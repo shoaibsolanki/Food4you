@@ -28,6 +28,7 @@ const CartItem = ({
   handleIncrease,
   handleDecrease,
   isAuthenticated,
+  bank_account
 }) => (
   <>
     <Box className="my-2 items-center max-md:hidden">
@@ -48,7 +49,7 @@ const CartItem = ({
         </Grid>
         <Grid item xs={2}>
           <Typography className="fw-bold" variant="body1">
-            ${item.price}
+            {bank_account} {item.price}
           </Typography>
         </Grid>
         <Grid item xs={2}>
@@ -64,7 +65,7 @@ const CartItem = ({
         </Grid>
         <Grid item xs={1}>
           <Typography className="fw-bold" variant="body1">
-            ${item.price * item.product_qty}
+            {bank_account}{item.price * item.product_qty}
           </Typography>
         </Grid>
         <Grid item xs={1}>
@@ -75,67 +76,59 @@ const CartItem = ({
       </Grid>
       <Divider />
     </Box>
-    <div className="hidden max-md:block">
-      <div
-        className={`w-full flex flex-row items-start justify-start p-4 box-border relative gap-[12px] leading-[normal] tracking-[normal] text-left text-xs text-neutral-dark font-heading-h6`}
-      >
-        <section className="h-full w-full absolute !m-[0] top-[0px] right-[0px] bottom-[0px] left-[0px] rounded-8xs bg-background-white box-border border-[1px] border-solid border-neutral-light" />
-        <img
-          width={100}
-          height={100}
-          src={`${BASEURL.ENDPOINT_URL}item/get-image/${item.item_id}`}
-          className="h-[72px] w-[72px] relative rounded-8xs object-cover z-[1]"
-          loading="lazy"
-          alt=""
-        />
-        <div className="flex-1 flex flex-col items-start justify-start gap-[12px]">
-          <div className="self-stretch flex flex-row items-start justify-start gap-[13px]">
-            <b className="flex-1 relative tracking-[0.5px] leading-[150%] z-[1]">
+    {/* Mobail View: */}
+    <div className="md:hidden flex flex-col p-2 gap-2">
+    <div
+      className={`flex flex-col items-start justify-start w-full gap-2`}
+    >
+      <section className="w-full bg-white rounded-lg p-2 shadow-md">
+        <div className="flex items-center justify-between w-full">
+          {/* Image */}
+          <img
+            width={50}
+            height={50}
+            src={`${BASEURL.ENDPOINT_URL}item/get-image/${item.item_id}`}
+            className="w-[50px] h-[50px] rounded-lg object-cover"
+            alt={item?.itemName}
+          />
+
+          {/* Item Name and Delete Button */}
+          <div className="flex-1 flex flex-col ml-2">
+            <b className="text-sm leading-tight">
               {isAuthenticated
-                ? item?.itemName?.slice(0, 30)
-                : item.item_name?.slice(0, 30)}
-              {item?.itemName?.length > 30 ? "..." : ""}
+                ? item?.itemName?.slice(0, 25) + (item?.itemName?.length > 25 ? '...' : '')
+                : item.item_name?.slice(0, 25) + (item.item_name?.length > 25 ? '...' : '')}
             </b>
-            <div
-              onClick={() => {
-                removeFromCart(item);
-              }}
-              className="flex flex-row items-start justify-start gap-[8px] z-10"
-            >
-              <Delete fontSize="small" onClick={() => removeFromCart(item)} />
+            <div className="text-xs text-gray-600">
+              {bank_account} {item.price}
             </div>
           </div>
-          <div className="self-stretch flex flex-row items-start justify-between gap-[20px] text-primary-blue">
-            <div className="flex flex-col items-start justify-start pt-1.5 px-0 pb-0">
-              <b className="relative tracking-[0.5px] leading-[150%] inline-block min-w-[52px] whitespace-nowrap z-[1]">
-                ${item.price}/-
-                <br />
-                {/* Total: Rs.{item.price * item.product_qty}/- */}
-              </b>
-            </div>
-            <div className="flex flex-row items-center justify-start py-0  relative gap-[2px] z-[1] text-center text-darkslateblue">
-              <div className="flex flex-col items-start justify-start pt-1 px-0 pb-0">
-                <Remove fontSize="small" onClick={() => handleDecrease(item)} />
-              </div>
-              <div className="h-6 flex flex-row items-start justify-start py-0 pr-[17px] pl-0 box-border">
-                <div className="h-[25px] w-[41px] relative bg-neutral-light box-border  border-neutral-light" />
-                <div className="flex flex-col items-start justify-start pt-[3px] px-0 pb-0 ml-[-22px]">
-                  <div className="relative tracking-[0.01em] leading-[150%] inline-block min-w-[4px] z-[1] text-black">
-                    {item.product_qty}
-                  </div>
-                </div>
-              </div>
-              <div
-                onClick={() => handleIncrease(item)}
-                className=" flex flex-col items-start justify-start pt-1 px-0 pb-0"
-              >
-                <AddIcon fontSize="small" />
-              </div>
-            </div>
+          
+          <IconButton size="small" onClick={() => removeFromCart(item)}>
+            <Delete fontSize="small" />
+          </IconButton>
+        </div>
+
+        {/* Quantity and Total Price */}
+        <div className="flex items-center justify-between mt-2">
+          <div className="flex items-center space-x-2">
+            <IconButton size="small" onClick={() => handleDecrease(item)}>
+              <Remove fontSize="small" />
+            </IconButton>
+            <Typography variant="body2">{item.product_qty}</Typography>
+            <IconButton size="small" onClick={() => handleIncrease(item)}>
+              <Add fontSize="small" />
+            </IconButton>
+          </div>
+          <div>
+            <Typography className="text-sm font-bold">
+             {bank_account} {item.price * item.product_qty}
+            </Typography>
           </div>
         </div>
-      </div>{" "}
+      </section>
     </div>
+  </div>
   </>
 );
 
@@ -153,7 +146,7 @@ const Cart = () => {
   const navigate = useNavigate();
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const {bank_account} = JSON.parse(localStorage.getItem("selectedStore"));
   useEffect(() => {
     if (authData && authData.id) {
       setUserId(authData.id);
@@ -236,6 +229,7 @@ const Cart = () => {
                         removeFromCart={removeFromCart}
                         handleIncrease={handleIncrease}
                         handleDecrease={handleDecrease}
+                        bank_account={bank_account}
                       />
                     </Suspense>
                   ))}
@@ -428,7 +422,7 @@ const Cart = () => {
             <Box p={2} borderRadius={2}>
               <Box display="flex" justifyContent="space-between" my={1}>
                 <Typography variant="body1">Subtotal</Typography>
-                <Typography variant="body1">${totalPrice}</Typography>
+                <Typography variant="body1">{bank_account} {totalPrice}</Typography>
               </Box>
               <TextField
                 label="Enter coupon code"
@@ -442,7 +436,7 @@ const Cart = () => {
               </Select> */}
               <Box display="flex" justifyContent="space-between" my={2}>
                 <Typography variant="body1">Total amount</Typography>
-                <Typography variant="body1">${totalPrice}</Typography>
+                <Typography variant="body1">{bank_account} {totalPrice}</Typography>
               </Box>
               <div className="flex justify-center">
                 <button

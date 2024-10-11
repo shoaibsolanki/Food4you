@@ -8,6 +8,7 @@ import { BASEURL } from "../services/http-Pos";
 
 const ProductComponent = ({ flex_direction, data }) => {
   const [isHovering, setIsHovering] = useState(false);
+  const {bank_account} = JSON.parse(localStorage.getItem("selectedStore"));
   const [isLoading, setIsLoading] = useState(true); // Add loading state
   const { cart } = useCart();
   // const Productimage = data?.colorList[0]?.image_url;
@@ -114,7 +115,7 @@ const ProductComponent = ({ flex_direction, data }) => {
                 : data?.item_name}
             </h2>
                   <div className="flex items-baseline">
-                  <p className="priceTitle">${data?.price}/-</p>
+                  <p className="priceTitle">{bank_account} {data?.price}/-</p>
                     {/* <p className="text-sm text-gray-500 line-through ml-2">Rs 399</p> */}
                   </div>
                   {/* <span className="text-green-500 font-semibold text-sm">20% OFF</span> */}
