@@ -85,5 +85,8 @@ class DataService {
   GetStoreByCuisine(address,cuisine_id){
     return https.get(`/storeMaster/get-store-Byaddress/${address}/${cuisine_id}`)
   }
+  GetDowloaPdf(orderId,saasid,storeId){
+    return https.get(`/order/get-invoice-for-order/${orderId}/${saasid}/${storeId}`)
+  }
 }
 export default new DataService();

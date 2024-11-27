@@ -8,6 +8,8 @@ import { MapPin } from "@phosphor-icons/react";
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
 import { Button } from "@mui/material";
+import DataService from "../services/requestApi";
+
 const Orders = ({ className = "" }) => {
   const { allOrders, getOrderHistory ,authData,getLocationAndOpenMaps} = useAuth();
   const selectedStore = localStorage.getItem('selectedStore');
@@ -44,6 +46,53 @@ const Orders = ({ className = "" }) => {
     // window.location.reload();
   }, []);
   console.log(allOrders);
+
+
+  const getDonloadpdf = async (orderId) => {
+    try {
+      // First API call
+      const response = await DataService.GetDowloaPdf(orderId, saasId, storeId);
+      if (response?.status) {
+        const { invoice } = response.data.data;
+        if (invoice) {
+          const downloadUrl = `https://annapurnaprdapi.photonsoftwares.com/prod/api/v1/transaction/pdf/${invoice}`;
+          console.log("Download URL:", downloadUrl);
+  
+          // Second API call
+          const downloadResponse = await fetch(downloadUrl, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/pdf",
+              // Add Authorization header if required
+              // "Authorization": `Bearer ${yourAuthToken}`,
+            },
+          });
+  
+          if (downloadResponse.ok) {
+            // Create a blob and trigger download
+            const blob = await downloadResponse.blob();
+            const blobUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = blobUrl;
+            link.download = `Invoice_${orderId}.pdf`; // Set a file name
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          } else {
+            console.error("Failed to download PDF:", downloadResponse.statusText);
+          }
+        } else {
+          console.error("Invoice is missing in the response.");
+        }
+      } else {
+        console.error("Failed to fetch the invoice:", response?.message);
+      }
+    } catch (error) {
+      console.error("Error occurred while fetching the PDF:", error);
+    }
+  };
+  
+  
   return (
     <>
       <h1 className="text-2xl font-semibold mb-4">Orders History</h1>
@@ -109,7 +158,7 @@ const Orders = ({ className = "" }) => {
                       {order.status}
                     </span>
                     <div className="text-sm text-gray-600 mt-2">
-                      <Button variant="outlined" className="p-0">Download</Button>
+                      <Button onClick={()=>getDonloadpdf(order?.order_id)} variant="outlined" className="p-0">Download</Button>
                     </div>
                   </div>
                     
