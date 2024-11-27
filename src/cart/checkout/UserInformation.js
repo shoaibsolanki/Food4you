@@ -35,7 +35,7 @@ const CheckoutPage = () => {
   const { id, saasId, storeId, mobileNumber, name } = authData;
   const selectedStore = localStorage.getItem('selectedStore');
   const parsedStore = selectedStore ? JSON.parse(selectedStore) : null;
-  const { saas_id, store_id ,store_logo,store_name,address,phone_no} = parsedStore || {};
+  const { saas_id, store_id ,store_logo,store_name,address,phone_no,country} = parsedStore || {};
   const [billingAddress, setBillingAddress] = useState(false);
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [showNewAddressForm, setShowNewAddressForm] = useState(false);
@@ -549,7 +549,7 @@ const CheckoutPage = () => {
     const fetchStates = async () => {
       try {
         const response = await fetch(
-          "https://countriesnow.space/api/v0.1/countries/states/q?country=Canada",
+          `https://countriesnow.space/api/v0.1/countries/states/q?country=${country}`,
           {
             method: "GET",
             headers: {
@@ -808,14 +808,14 @@ const CheckoutPage = () => {
               </div>
               <div className="form-group">
                 <label htmlFor="state" className="text-sm font-semibold">
-                Province
+                {country =="India"?"State":"Province"}
                 </label>
                 <select
                   {...register("state", { required: true })}
                   id="state"
                   className="bg-white mt-1 p-2 border border-gray-300 rounded-md w-full"
                 >
-                  <option value="">Select your Province</option>
+                  <option value="">Select your {country =="India"?"State":"Province"}</option>
                   {states.map((state, index) => (
                     <option key={index} value={state.name}>
                       {state.name}

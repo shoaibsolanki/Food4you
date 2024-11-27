@@ -7,6 +7,7 @@ import { Phone } from "@mui/icons-material";
 import { MapPin } from "@phosphor-icons/react";
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
+import { Button } from "@mui/material";
 const Orders = ({ className = "" }) => {
   const { allOrders, getOrderHistory ,authData,getLocationAndOpenMaps} = useAuth();
   const selectedStore = localStorage.getItem('selectedStore');
@@ -98,7 +99,7 @@ const Orders = ({ className = "" }) => {
                   <div className="text-sm text-gray-600">
                     Date: {order.order_date}
                   </div>
-                  <div className="text-sm text-gray-600 mt-2">
+                  <div className="text-sm text-gray-600 mt-2 flex justify-between items-center">
                     Status:{" "}
                     <span
                       className={`text-sm text-white font-semibold py-[4px] px-[8px] rounded-lg ${
@@ -107,6 +108,9 @@ const Orders = ({ className = "" }) => {
                     >
                       {order.status}
                     </span>
+                    <div className="text-sm text-gray-600 mt-2">
+                      <Button variant="outlined" className="p-0">Download</Button>
+                    </div>
                   </div>
                     
                 </div>
