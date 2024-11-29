@@ -7,7 +7,7 @@ import { Phone } from "@mui/icons-material";
 import { MapPin } from "@phosphor-icons/react";
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
-import { Button } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
 import DataService from "../services/requestApi";
 
 const Orders = ({ className = "" }) => {
@@ -20,6 +20,7 @@ const Orders = ({ className = "" }) => {
   const { id, saasId, storeId, mobileNumber, name } = authData;
   const totalPages = Math.ceil(allOrders?.length / itemsPerPage);
   const [copied, setCopied] = useState(false)
+  const [Downloading, setDownloading] = useState(false)
     const copyToClipboard = () => {
       navigator.clipboard.writeText(phone_no)
         .then(() => {
@@ -49,6 +50,7 @@ const Orders = ({ className = "" }) => {
 
 
   const getDonloadpdf = async (orderId) => {
+    setDownloading(true);
     try {
       // First API call
       const response = await DataService.GetDowloaPdf(orderId, saasId, storeId);
@@ -78,16 +80,21 @@ const Orders = ({ className = "" }) => {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            setDownloading(false);
           } else {
+            setDownloading(false)
             console.error("Failed to download PDF:", downloadResponse.statusText);
           }
         } else {
+          setDownloading(false)
           console.error("Invoice is missing in the response.");
         }
       } else {
+        setDownloading(false)
         console.error("Failed to fetch the invoice:", response?.message);
       }
     } catch (error) {
+      setDownloading(false)
       console.error("Error occurred while fetching the PDF:", error);
     }
   };
@@ -158,7 +165,9 @@ const Orders = ({ className = "" }) => {
                       {order.status}
                     </span>
                     <div className="text-sm text-gray-600 mt-2">
-                      <Button onClick={()=>getDonloadpdf(order?.order_id)} variant="outlined" className="p-0">Download</Button>
+                      
+                     {!Downloading ?  <Button disabled={Downloading} onClick={()=>getDonloadpdf(order?.order_id)} variant="outlined" className="p-0">Download</Button>
+                     : <CircularProgress />}
                     </div>
                   </div>
                     

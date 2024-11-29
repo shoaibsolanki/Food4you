@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import CreatableSelect from 'react-select/creatable';
 
-const SearchableSelect = ({options,Address,onChange}) => {
+const SearchableSelect = ({options,Address,onChange,dropdownRef,menuIsOpen}) => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [getAddress, setGetAddress] = useState('');
 
@@ -56,6 +56,8 @@ const SearchableSelect = ({options,Address,onChange}) => {
   return (
     <div className="w-full max-w-xs mx-auto ">
       <CreatableSelect
+      ref={dropdownRef} 
+      menuIsOpen={menuIsOpen}
         value={Address}
         onChange={handleSelectChange}
         options={options}

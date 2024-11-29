@@ -88,5 +88,8 @@ class DataService {
   GetDowloaPdf(orderId,saasid,storeId){
     return https.get(`/order/get-invoice-for-order/${orderId}/${saasid}/${storeId}`)
   }
+  GetStoreByPinCode(pincode){
+    return https.get(`/storeMaster/get-store-Bypincode/${pincode}`)
+  }
 }
 export default new DataService();
