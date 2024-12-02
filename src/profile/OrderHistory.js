@@ -9,6 +9,7 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
 import { Button, CircularProgress } from "@mui/material";
 import DataService from "../services/requestApi";
+import Swal from "sweetalert2";
 
 const Orders = ({ className = "" }) => {
   const { allOrders, getOrderHistory ,authData,getLocationAndOpenMaps} = useAuth();
@@ -54,7 +55,7 @@ const Orders = ({ className = "" }) => {
     try {
       // First API call
       const response = await DataService.GetDowloaPdf(orderId, saasId, storeId);
-      if (response?.status) {
+      if (response?.data.status) {
         const { invoice } = response.data.data;
         if (invoice) {
           const downloadUrl = `https://annapurnaprdapi.photonsoftwares.com/prod/api/v1/transaction/pdf/${invoice}`;
@@ -91,6 +92,11 @@ const Orders = ({ className = "" }) => {
         }
       } else {
         setDownloading(false)
+        Swal.fire({
+          title: "Waiting...",
+          text: "May Your Order Bill Not Generated Yet",
+          icon: "info",
+        })
         console.error("Failed to fetch the invoice:", response?.message);
       }
     } catch (error) {
