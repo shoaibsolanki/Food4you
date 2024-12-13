@@ -179,8 +179,16 @@ const CheckoutPage = () => {
         });
         return;
       }
-      setIsLoading(true)
       const updatedCart = cart.map((item) => ({ ...item, productQty: 0 }));
+      if(updatedCart?.length == 0 ){
+        setSnackbar({
+          open: true,
+          message: "Cart is empty",
+          severity: "error",
+        });
+        return;
+      }
+      setIsLoading(true)
       const orderInformations = {
         address_id: deliveryMethod == "Pickup"?"":data.address_id,
         customer_id: id,
@@ -244,6 +252,14 @@ const CheckoutPage = () => {
   const handlePlaceOrder = async (data, paymentResponse) => {
     try {
       const updatedCart = cart.map((item) => ({ ...item, productQty: 0 }));
+      if(updatedCart?.length == 0 ){
+        setSnackbar({
+          open: true,
+          message: "Cart is empty",
+          severity: "error",
+        });
+        return;
+      }
       const orderInformations = {
         address_id: data.address_id,
         customer_id: id,
@@ -331,23 +347,25 @@ const CheckoutPage = () => {
   };
 
   const onSubmitFirstStep = async (data) => {
-    // if (data.mobile_numbers.length !== 10) {
-    //   setSnackbar({
-    //     open: true,
-    //     message: "Phone number must be 10 digits!",
-    //     severity: "error",
-    //   });
-    //   return;
-    // }
+    if ( country !== "Canada" && data.mobile_number?.length !== 10) {
+      console.log(data.mobile_number?.length, data.mobile_number)
+      setSnackbar({
+        open: true,
+        message: "Phone number must be 10 digits!",
+        severity: "error",
+      });
+      return;
+    }
     setIsLoading(true);
     try {
-      setEmail(data.email);
+      const checkCountry = country == "Canada"? data.email :data.mobile_number
+      setEmail(checkCountry);
       const response = await axios.get(
-        `${BASEURL.ENDPOINT_URL}otp/resend-otp/${data.email}`
+        `${BASEURL.ENDPOINT_URL}otp/resend-otp/${checkCountry}`
       );
 
       if (response.data.status) {
-        if(response.data.message === "Email Already Registered"){
+        if(response.data.message === "Already Registered"){
           setExistUser(true);
         }
         setSnackbar({
@@ -397,7 +415,7 @@ const CheckoutPage = () => {
           otp: data.otp,
         }
       );
-      if (response.status === 200) {
+      if (response.data.status ) {
         if(Existuser){
           handleLoginSubmit(response?.data?.password);
         }else{
@@ -410,6 +428,13 @@ const CheckoutPage = () => {
           setStep(3);
         }
 
+      }else{
+        setIsLoading(false);
+        setSnackbar({
+          open:true,
+          message:response.data.message,
+          severity:"error"
+        })
       }
     } catch (error) {
       setIsLoading(false);
@@ -682,7 +707,7 @@ const CheckoutPage = () => {
               onSubmit={handleSubmit(onSubmitSecondStep)}
               className="grid grid-cols-1 gap-4"
             >
-              <span>Otp sent to your email '{email}'</span>
+              <span>Otp sent to your '{email}'</span>
               <div className="form-group">
                 <label htmlFor="otp" className="text-sm font-semibold">
                   Enter OTP

@@ -120,7 +120,7 @@ const Landingpage = () => {
                 className="px-1 mb-2 py-1 bg-black text-white rounded font-bold flex justify-center items-center"
               >
                 <LocationOnIcon className="mx-1 text-white"/>
-                Get By Location
+               By Current Location
               </button>
           <div className="flex justify-between gap-2">
             <SearchableSelect
