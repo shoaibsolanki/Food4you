@@ -8,7 +8,7 @@ const Footer = () => {
 
   const selectedStore = localStorage.getItem('selectedStore');
   const parsedStore = selectedStore ? JSON.parse(selectedStore) : null;
-  const { address,email} = parsedStore || {};
+  const {phone_no, address,email} = parsedStore || {};
 
   return (
     <>
@@ -120,7 +120,7 @@ const Footer = () => {
       </div>
       <div className="text-star mb-4">
         <h2 className="text-lg font-semibold">Contact</h2>
-        <p className="text-muted-foreground">905-519-8673</p>
+        <p className="text-muted-foreground">{phone_no}</p>
         <p className="text-muted-foreground">{email}</p>
       </div>
       <div className="mb-4">
@@ -133,9 +133,9 @@ const Footer = () => {
       <p className="text-muted-foreground mb-4">
         Join our subscribers and get best recipe delivered each week!
       </p>
-      <button className="bg-dark text-white text-secondary-foreground hover:bg-secondary/80 rounded-lg p-2">
+      {/* <button className="bg-dark text-white text-secondary-foreground hover:bg-secondary/80 rounded-lg p-2">
         Subscribe
-      </button>
+      </button> */}
       <div className="flex justify-start space-x-4 mt-4">
         <a href="#" aria-label="Twitter">
         <InstagramIcon className="text-pink-600" />
@@ -143,7 +143,7 @@ const Footer = () => {
         {/* <a href="#" aria-label="Facebook">
           <img aria-hidden="true" alt="facebook-icon" src="https://openui.fly.dev/openui/facebook.svg?text=📘" />
         </a> */}
-        <a  href="https://wa.me/+19055198673"
+        <a  href={`https://wa.me/+91${phone_no}`}
           target="_blank"
           rel="noreferrer">
         <WhatsApp className="text-green-500" />{" "}

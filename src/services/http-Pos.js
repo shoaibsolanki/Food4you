@@ -3,7 +3,7 @@ import { isDev } from "../Constant/URL.js";
 
 export const BASEURL = {
   ENDPOINT_URL: isDev
-    ? "http://103.148.165.246:8088/test/api/v1/"
+    ? "http://103.148.165.246:8092/test/api/v1/"
     : "https://annapurnaprdapi.photonsoftwares.com/prod/api/v1/",
 };
 

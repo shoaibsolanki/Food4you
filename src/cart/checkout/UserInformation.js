@@ -361,7 +361,7 @@ const CheckoutPage = () => {
       const checkCountry = country == "Canada"? data.email :data.mobile_number
       setEmail(checkCountry);
       const response = await axios.get(
-        `${BASEURL.ENDPOINT_URL}otp/resend-otp/${checkCountry}`
+        `${BASEURL.ENDPOINT_URL}otp/resend-otp/${checkCountry}/${store_id}`
       );
 
       if (response.data.status) {

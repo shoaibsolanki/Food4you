@@ -1,4 +1,3 @@
-"use client";
 import React, { useState } from "react";
 import UserInformation from "./UserInformation";
 import ItemsShowInSide from "./ItemsShowInSide";

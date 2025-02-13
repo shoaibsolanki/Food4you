@@ -29,22 +29,22 @@ const Landingpage = () => {
   const handleCloseSnackbar = () => {
     setSnackbar({ open: false, message: "", severity: "" });
   };
-  const GetAddress = async () => {
-    try {
-      const response = await DataService.getAddressofStores();
-      console.log(response);
-      const formattedOptions = response.data.data.map((item) => ({
-        value: item.saas_id, // You can change 'store_id' to any field you want as the value
-        label: `${item.address}`, // Customize label as needed
-      }));
-      setOptions(formattedOptions);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  useEffect(() => {
-    GetAddress();
-  }, []);
+  // const GetAddress = async () => {
+  //   try {
+  //     const response = await DataService.getAddressofStores();
+  //     console.log(response);
+  //     const formattedOptions = response.data.data.map((item) => ({
+  //       value: item.saas_id, // You can change 'store_id' to any field you want as the value
+  //       label: `${item.address}`, // Customize label as needed
+  //     }));
+  //     setOptions(formattedOptions);
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
+  // useEffect(() => {
+  //   GetAddress();
+  // }, []);
 
   const GetStorebyAddress = async () => {
     console.log(Address);
@@ -80,7 +80,7 @@ const Landingpage = () => {
       console.log(response);
       const formattedOptions = response.data.data.map((item) => ({
         value: item.saas_id, // You can change 'store_id' to any field you want as the value
-        label: `${item.address}`, // Customize label as needed
+        label: `${item.store_name}`, // Customize label as needed
       }));
       setOptions(formattedOptions);
       // Focus the dropdown after setting options

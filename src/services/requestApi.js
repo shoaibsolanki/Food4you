@@ -67,7 +67,7 @@ class DataService {
     );
   }
   GetCategoryList(saasId){
-    return https.get(`/item/category-list/${saasId}`)
+    return https.get(`/item/category-list-online/${saasId}`)
   }
   GetItemByCatogory(id, saasid){
     return https.get(`item/view-menu-by-category/${id}/${saasid}`)
@@ -91,5 +91,18 @@ class DataService {
   GetStoreByPinCode(pincode){
     return https.get(`/storeMaster/get-store-Bypincode/${pincode}`)
   }
+  BuySubsription(data){
+    return https.post('/Subscription/Customer-Create',data)
+  }
+
+  MySubscription(id, saasId, storeId){
+    return https.get(`/Subscription/Customer-Get/${id}/${saasId}/${storeId}`)
+  }
+
+  PaymentVerification(data){
+    return https.post('/rezar/verification',data)
+  } 
+
+
 }
 export default new DataService();

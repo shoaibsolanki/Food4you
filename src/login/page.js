@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import DataService from "../services/requestApi";
@@ -49,10 +49,14 @@ const Login = () => {
     }
   };
 
-  if (isAuthenticated) {
-    navigate("/");
-    return null;
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
+      return null;
+    }
+  }, [isAuthenticated])
+  
+ 
 
   return (
     <div

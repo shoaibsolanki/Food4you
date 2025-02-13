@@ -96,11 +96,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
   // console.log(allOrders);
-  useEffect(() => {
-    if(store_id,saas_id,id){
-      getOrderHistory(store_id, saas_id, id);
-    }
-  }, [id]);
+  // useEffect(() => {
+  //   if(store_id,saas_id,id){
+  //     getOrderHistory(store_id, saas_id, id);
+  //   }
+  // }, [id]);
 
   // useEffect(() => {
   //   fetchAndSetProducts();
@@ -266,9 +266,25 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+      const [snackbarMessage, setSnackbarMessage] = React.useState("");
+      const [snackbarSeverity, setSnackbarSeverity] = React.useState("success");
+  
+      const handleSnackbarClose = () => {
+          setSnackbarOpen(false);
+      };
+
   return (
     <AuthContext.Provider
       value={{
+        snackbarOpen,
+        setSnackbarOpen,
+        snackbarMessage,
+        setSnackbarMessage,
+        snackbarSeverity,
+        setSnackbarSeverity,
+        handleSnackbarClose,
+        snackbarSeverity,
         authData,
         isAuthenticated,
         allOrders,
